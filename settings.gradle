@@ -1,0 +1,4 @@
+rootProject.name = 'gimv'
+
+include 'samples:jfreechart'
+
