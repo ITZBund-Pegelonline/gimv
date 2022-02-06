@@ -1,14 +1,29 @@
 plugins {
-    id 'java'
+    id "java"
 }
 
-group 'org.eesgmbh.gimv'
-version '1.0.1'
+group "org.eesgmbh.gimv"
+version "1.0.1"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.13.2'
+    implementation("com.google.gwt:gwt-user:$gwtVersion")
+    testImplementation "junit:junit:4.13.2"
+    testImplementation("com.google.gwt:gwt-dev:$gwtVersion")
+}
+
+test {
+    useJUnit()
+
+    // see http://www.gwtproject.org/doc/latest/DevGuideTesting.html
+    classpath = project.sourceSets.test.runtimeClasspath +
+            files("${projectDir}/src/test/java") +
+                    files("${projectDir}/src/main/java")
+
+    forkEvery = 1
+
+    systemProperty "gwt.args", "-logLevel WARN -war ${projectDir}/build/gwt-www-out -prod"
 }
