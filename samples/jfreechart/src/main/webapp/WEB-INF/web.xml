@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+		 version="3.1">
+  
+  	<!-- Servlets -->
+	<servlet>
+		<servlet-name>example1DataService</servlet-name>
+		<servlet-class>org.eesgmbh.gimv.samples.jfreechart.server.JFreechartSampleServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>jFreeChartDisplayChart</servlet-name>
+		<servlet-class>org.jfree.chart.servlet.DisplayChart</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>example1DataService</servlet-name>
+		<url-pattern>/gimvsamples_jfreechart/imagedata</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>jFreeChartDisplayChart</servlet-name>
+		<url-pattern>/gimvsamples_jfreechart/jfreechart/image</url-pattern>
+	</servlet-mapping>
+
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>JFreechartSample.html</welcome-file>
+	</welcome-file-list>
+
+</web-app>
