@@ -1,23 +1,16 @@
 package org.eesgmbh.gimv.samples.jfreechart.client;
 
-import java.util.Date;
-
-import org.eesgmbh.gimv.client.controls.ViewportDimensionsListenerControl;
-import org.eesgmbh.gimv.client.event.LoadImageDataEvent;
-import org.eesgmbh.gimv.client.event.LoadImageDataEventHandler;
-import org.eesgmbh.gimv.client.event.SetDomainBoundsEvent;
-import org.eesgmbh.gimv.client.event.SetImageUrlEvent;
-import org.eesgmbh.gimv.client.event.SetMaxDomainBoundsEvent;
-import org.eesgmbh.gimv.client.event.SetViewportPixelBoundsEvent;
-import org.eesgmbh.gimv.client.widgets.Viewport;
-import org.eesgmbh.gimv.samples.jfreechart.client.img.JFreechartSampleDataServiceAsync;
-import org.eesgmbh.gimv.samples.jfreechart.shared.ImageDataRequest;
-import org.eesgmbh.gimv.samples.jfreechart.shared.ImageDataResponse;
-import org.eesgmbh.gimv.shared.util.Bounds;
-
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.eesgmbh.gimv.client.controls.ViewportDimensionsListenerControl;
+import org.eesgmbh.gimv.client.event.*;
+import org.eesgmbh.gimv.client.widgets.Viewport;
+import org.eesgmbh.gimv.samples.jfreechart.client.img.JFreechartSampleDataServiceAsync;
+import org.eesgmbh.gimv.samples.jfreechart.shared.CommonSettings;
+import org.eesgmbh.gimv.samples.jfreechart.shared.ImageDataRequest;
+import org.eesgmbh.gimv.samples.jfreechart.shared.ImageDataResponse;
+import org.eesgmbh.gimv.shared.util.Bounds;
 
 public class OverviewJFreechartSampleController extends AbstractJFreechartController {
 
@@ -31,11 +24,7 @@ public class OverviewJFreechartSampleController extends AbstractJFreechartContro
 	public void init(Viewport viewport) {
 		//initialize to some defaults
 		currentImageDataRequest = new ImageDataRequest(
-				new Bounds(
-						//must use deprecated Date here, 110 is 2010 (1900 + 110)
-						new Date(110, 1, 23).getTime(), new Date(110, 1, 27, 23, 59).getTime(),
-						470l, 230l
-				),
+				CommonSettings.INITIAL_OVERVIEW_BOUNDS,
 				viewport.getOffsetWidth(), viewport.getOffsetHeight(),
 				null, null, null, false, false, false, true);
 

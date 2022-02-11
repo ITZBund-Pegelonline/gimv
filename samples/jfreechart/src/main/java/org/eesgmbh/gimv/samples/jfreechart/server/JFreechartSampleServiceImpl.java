@@ -1,22 +1,11 @@
 package org.eesgmbh.gimv.samples.jfreechart.server;
 
-import java.awt.geom.Rectangle2D;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.SimpleTimeZone;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import org.eesgmbh.gimv.samples.jfreechart.client.img.JFreechartSampleDataService;
+import org.eesgmbh.gimv.samples.jfreechart.shared.CommonSettings;
 import org.eesgmbh.gimv.samples.jfreechart.shared.ImageDataRequest;
 import org.eesgmbh.gimv.samples.jfreechart.shared.ImageDataResponse;
 import org.eesgmbh.gimv.shared.util.Bounds;
@@ -37,10 +26,25 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.text.ParseException;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class JFreechartSampleServiceImpl extends RemoteServiceServlet implements JFreechartSampleDataService {
+
+	private final HttpClient pegelonlineHttpClient = HttpClient.newHttpClient();
+	private final ObjectMapper pegelonlineMeasurementsObjectMapper = new ObjectMapper().registerModules(new JavaTimeModule());
 
 	@SuppressWarnings("deprecation")
 	public ImageDataResponse getImageData(ImageDataRequest imageDataRequest) {
@@ -55,17 +59,18 @@ public class JFreechartSampleServiceImpl extends RemoteServiceServlet implements
 					false // generate URLs?
 			);
 
-			XYDataset dataset1 = createSampleDataset(imageDataRequest, new DatasetGroup("1"), 0);
-			XYDataset dataset2 = createSampleDataset(imageDataRequest, new DatasetGroup("2"), 50);
+			XYDataset dataset1 = createPegelonlineSampleDataset(imageDataRequest, new DatasetGroup("1"));
 
-			((XYPlot)chart.getPlot()).setDataset(0, dataset1);
-			((XYPlot)chart.getPlot()).setDataset(1, dataset2);
+			XYPlot plot = (XYPlot) chart.getPlot();
+			plot.setDataset(0, dataset1);
 
-			((XYPlot)chart.getPlot()).getDomainAxis().setRange(new Range(imageDataRequest.getBounds().getLeft(), imageDataRequest.getBounds().getRight()));
-			((XYPlot)chart.getPlot()).getRangeAxis().setRange(new Range(imageDataRequest.getBounds().getBottom(), imageDataRequest.getBounds().getTop()));
-			((XYPlot)chart.getPlot()).getRangeAxis().setVisible(imageDataRequest.showRangeAxis());
+			plot.getDomainAxis().setRange(new Range(imageDataRequest.getBounds().getLeft(), imageDataRequest.getBounds().getRight()));
+			plot.getRangeAxis().setRange(new Range(imageDataRequest.getBounds().getBottom(), imageDataRequest.getBounds().getTop()));
+			plot.getRangeAxis().setVisible(imageDataRequest.showRangeAxis());
+			plot.getRenderer().setPaint(new Color(68, 89, 139, 255));
+			plot.getRenderer().setStroke(new BasicStroke(1.5f));
 			if (imageDataRequest.noPlotInsets()) {
-				((XYPlot)chart.getPlot()).setInsets(new RectangleInsets(0, 0, 0, 0));
+				plot.setInsets(new RectangleInsets(0, 0, 0, 0));
 			}
 
 			ChartRenderingInfo renderingInfo = new ChartRenderingInfo(new StandardEntityCollection());
@@ -77,7 +82,7 @@ public class JFreechartSampleServiceImpl extends RemoteServiceServlet implements
 			ImageDataResponse imageDataResponse = new ImageDataResponse(
 					"gimvsamples_jfreechart/jfreechart/image?filename=" + filename,
 					imageDataRequest.getBounds(),
-					new Bounds(new Date(110, 1, 23, 0, 15).getTime(), new Date(110, 1, 27, 23, 45).getTime(), null, null),
+					CommonSettings.MAX_BOUNDS,
 					new Bounds(plotDataArea.getMinX(), plotDataArea.getMaxX(), plotDataArea.getMinY(), plotDataArea.getMaxY()),
 					createImageEntities(renderingInfo.getEntityCollection()));
 
@@ -91,35 +96,21 @@ public class JFreechartSampleServiceImpl extends RemoteServiceServlet implements
 
 	}
 
-	private SimpleTimeZone mezZone = new SimpleTimeZone(3600000, "CET");
+	private XYDataset createPegelonlineSampleDataset(ImageDataRequest imageDataRequest, DatasetGroup datasetGroup) throws IOException, InterruptedException, ParseException {
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("https://pegelonline.wsv.de/webservices/rest-api/v2/stations/MAXAU/W/measurements.json?start=P" + CommonSettings.MAX_RANGE_IN_DAYS + "D"))
+				.GET()
+				.build();
 
-	private XYDataset createSampleDataset(ImageDataRequest imageDataRequest, DatasetGroup datasetGroup, int valueOffset) throws IOException, ParseException {
-		DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-		dateFormat.setTimeZone(mezZone);
+		String response = pegelonlineHttpClient.send(request, BodyHandlers.ofString()).body();
 
-		final NumberFormat numberFormat = new DecimalFormat("#.#", new DecimalFormatSymbols(Locale.ENGLISH));
+		List<PegelonlineMeasurement> measurements = pegelonlineMeasurementsObjectMapper.readValue(response, new TypeReference<>() {});
 
-		TimeSeries timeSeries = new TimeSeries("A sample timeseries", Minute.class);
-
-		BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("sampletimeseries.dat")));
-		try {
-			while (true) {
-				String line = reader.readLine();
-				if (line == null) {
-					break;
-				} else if (!line.startsWith("#") && line.trim().length() > 0){
-					String[] items = line.split(" ");
-
-					Date date = dateFormat.parse(items[0]);
-					Number value = numberFormat.parse(items[1]);
-
-					if (imageDataRequest.getBounds().containsHorizontally(date.getTime()) && imageDataRequest.getBounds().containsVertically(value.longValue() + valueOffset)) {
-						timeSeries.add(new Minute(date, mezZone), value.doubleValue() + valueOffset);
-					}
-				}
+		TimeSeries timeSeries = new TimeSeries("MAXAU", Minute.class);
+		for (PegelonlineMeasurement measurement : measurements) {
+			if (imageDataRequest.getBounds().containsHorizontally(measurement.timestamp.toEpochSecond()*1000) && imageDataRequest.getBounds().containsVertically(measurement.value)) {
+				timeSeries.add(new Minute(Date.from(measurement.timestamp.toInstant())), measurement.value);
 			}
-		} finally {
-			reader.close();
 		}
 
 		TimeSeriesCollection dataset = new TimeSeriesCollection();
@@ -156,5 +147,26 @@ public class JFreechartSampleServiceImpl extends RemoteServiceServlet implements
 		}
 
 		return imageEntities;
+	}
+
+	public static class PegelonlineMeasurement {
+		private OffsetDateTime timestamp;
+		private Double value;
+
+		public OffsetDateTime getTimestamp() {
+			return timestamp;
+		}
+
+		public void setTimestamp(OffsetDateTime timestamp) {
+			this.timestamp = timestamp;
+		}
+
+		public Double getValue() {
+			return value;
+		}
+
+		public void setValue(Double value) {
+			this.value = value;
+		}
 	}
 }

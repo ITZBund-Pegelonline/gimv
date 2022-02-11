@@ -1,28 +1,17 @@
 package org.eesgmbh.gimv.samples.jfreechart.client;
 
-import java.util.Date;
-
-import org.eesgmbh.gimv.client.event.LoadImageDataEvent;
-import org.eesgmbh.gimv.client.event.LoadImageDataEventHandler;
-import org.eesgmbh.gimv.client.event.SetDataAreaPixelBoundsEvent;
-import org.eesgmbh.gimv.client.event.SetDomainBoundsEvent;
-import org.eesgmbh.gimv.client.event.SetDomainBoundsEventHandler;
-import org.eesgmbh.gimv.client.event.SetImageEntitiesEvent;
-import org.eesgmbh.gimv.client.event.SetImageUrlEvent;
-import org.eesgmbh.gimv.client.event.SetMaxDomainBoundsEvent;
-import org.eesgmbh.gimv.client.event.SetOverviewDomainBoundsEvent;
-import org.eesgmbh.gimv.client.event.SetViewportPixelBoundsEvent;
-import org.eesgmbh.gimv.client.history.DefaultSetDomainBoundsEventHistoryTokenTransformer;
-import org.eesgmbh.gimv.client.widgets.Viewport;
-import org.eesgmbh.gimv.samples.jfreechart.client.img.JFreechartSampleDataServiceAsync;
-import org.eesgmbh.gimv.samples.jfreechart.shared.ImageDataRequest;
-import org.eesgmbh.gimv.samples.jfreechart.shared.ImageDataResponse;
-import org.eesgmbh.gimv.shared.util.Bounds;
-
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.eesgmbh.gimv.client.event.*;
+import org.eesgmbh.gimv.client.history.DefaultSetDomainBoundsEventHistoryTokenTransformer;
+import org.eesgmbh.gimv.client.widgets.Viewport;
+import org.eesgmbh.gimv.samples.jfreechart.client.img.JFreechartSampleDataServiceAsync;
+import org.eesgmbh.gimv.samples.jfreechart.shared.CommonSettings;
+import org.eesgmbh.gimv.samples.jfreechart.shared.ImageDataRequest;
+import org.eesgmbh.gimv.samples.jfreechart.shared.ImageDataResponse;
+import org.eesgmbh.gimv.shared.util.Bounds;
 
 public class MainJFreechartSampleController extends AbstractJFreechartController {
 
@@ -45,7 +34,7 @@ public class MainJFreechartSampleController extends AbstractJFreechartController
 		//define the default request data
 		currentImageDataRequest = new ImageDataRequest(
 				viewport.getOffsetWidth(), viewport.getOffsetHeight(),
-				"A sample JFreechart timeseries", "Date", "Value", true, true, true, false);
+				"PEGELONLINE Station MAXAU", "Date", "Value", true, true, true, false);
 
 		//telling everyone about the size of the viewport
 		handlerManager.fireEvent(new SetViewportPixelBoundsEvent(new Bounds(0, viewport.getOffsetWidth(), 0, viewport.getOffsetHeight())));
@@ -58,10 +47,7 @@ public class MainJFreechartSampleController extends AbstractJFreechartController
 
 		} else {
 			//Initialize bounds to a default
-			onSetDomainBounds(new SetDomainBoundsEvent(new Bounds(
-					new Date(110, 1, 24).getTime(), new Date(110, 1, 26, 23, 59).getTime(),
-					410l, 230l
-			)));
+			onSetDomainBounds(new SetDomainBoundsEvent(CommonSettings.INITIAL_BOUNDS));
 
 			//and render the image on the server side
 			onLoadImageData();

@@ -16,6 +16,7 @@ can show it on the client side. It uses the library [JFreeChart](http://www.jfre
 
 * It can be build with the gradle task `war`. The resulting war file can be deployed to a servlet container like Tomcat or Jetty
 * It can be started in GWT Dev mode (instant recompilation of changes) with ` ./gradlew samples:jfreechart:gwtDev`
+* It accesses [PEGELONLINE API](https://pegelonline.wsv.de/webservice/guideRestapi) to show water gauge measurements
 
 The sample uses a number of Gimv components:
 * an overview component that shows the current range of the main image within a larger range. The overview can be moved or resized.

@@ -10,5 +10,7 @@ gwt {
 dependencies {
     implementation project(":lib")
     implementation("jfree:jfreechart:1.0.3")
+    implementation ("com.fasterxml.jackson.core:jackson-databind:2.13.0")
+    implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
     compileOnly ("javax.servlet:javax.servlet-api:4.0.1")
 }
