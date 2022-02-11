@@ -1,0 +1,24 @@
+   ======================================================================
+   == NOTICE file corresponding to section 4 d of the Apache License,  ==
+   == Version 2.0, in this case for the Gimv Framework distribution.   ==
+   ======================================================================
+
+   The samples of the Gimv Framework contain the following software:
+   
+   * GWT Servlet Library 2.9.0
+     License: Apache License, Version 2.0
+       http://www.apache.org/licenses/LICENSE-2.0
+     Source code availability:
+       https://gwt.googlesource.com/gwt/
+     
+   * JFreeChart
+     License: GNU Lesser General Public License v. 2.1
+       http://www.gnu.org/licenses/lgpl.html
+     Source code availability: 
+       http://jfree.org/jfreechart/download.html
+
+   * GWT Gradle Plugin
+    License: Apache License, Version 2.0
+      http://www.apache.org/licenses/LICENSE-2.0
+    Source code availability:
+      https://github.com/steffenschaefer/gwt-gradle-plugin
