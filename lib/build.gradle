@@ -1,34 +1,32 @@
-plugins {
-    id "java"
-}
-
-repositories {
-    mavenCentral()
-}
-
 group "org.eesgmbh.gimv"
 version "1.0.1"
 
+apply plugin: "gwt"
+
+gwt {
+    gwtVersion = "2.9.0"
+    modules "org.eesgmbh.gimv.Gimv"
+    devWar = file("${projectDir}/build/gwt-www-out")
+}
+
 dependencies {
-    implementation("com.google.gwt:gwt-user:2.9.0")
     testImplementation "junit:junit:4.13.2"
-    testImplementation("com.google.gwt:gwt-dev:2.9.0")
 }
 
 jar {
     archivesBaseName = "gimv"
+    // include sources (required for GWT)
     from sourceSets.main.java
+
+    manifest {
+        attributes(
+                "Implementation-Title": "Gimv Framework",
+                "Implementation-Version": archiveVersion,
+                "Gimv-Version": archiveVersion)
+    }
 }
 
 test {
-    useJUnit()
-
-    // see http://www.gwtproject.org/doc/latest/DevGuideTesting.html
-    classpath = project.sourceSets.test.runtimeClasspath +
-            files("${projectDir}/src/test/java") +
-            files("${projectDir}/src/main/java")
-
+    // required for successful test execution
     forkEvery = 1
-
-    systemProperty "gwt.args", "-logLevel WARN -war ${projectDir}/build/gwt-www-out -prod"
 }

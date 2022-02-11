@@ -1,10 +1,14 @@
-plugins {
-    id 'java'
-}
+apply plugin: "gwt"
+apply plugin: "war"
 
-repositories {
-    mavenCentral()
+gwt {
+    gwtVersion = "2.9.0"
+    modules "org.eesgmbh.gimv.samples.jfreechart.JFreechartSample"
+    devWar = file("${projectDir}/build/gwt-www-out")
 }
 
 dependencies {
+    implementation project(":lib")
+    implementation("jfree:jfreechart:1.0.3")
+    compileOnly ("javax.servlet:javax.servlet-api:4.0.1")
 }

@@ -1,0 +1,14 @@
+subprojects {
+    buildscript {
+        repositories {
+            mavenCentral()
+        }
+        dependencies {
+            classpath "org.wisepersist:gwt-gradle-plugin:1.1.16"
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+}
