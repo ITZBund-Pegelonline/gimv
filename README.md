@@ -14,7 +14,7 @@ Gimv provides widgets and workflows to implement a chart viewer based on [GWT](h
 This sample is a java web application that renders a line chart on the server side, so the Gimv client components
 can show it on the client side. It uses the library [JFreeChart](http://www.jfree.org/jfreechart/)
 
-* It can be build with the gradle task `war`. The resulting war file can be deployed to a servlet container like Tomcat or Jetty
+* It can be build with the gradle task `war`. The resulting war file can be deployed to a servlet container like Tomcat or Jetty (Tested with Tomcat 9)
 * It can be started in GWT Dev mode (instant recompilation of changes) with ` ./gradlew samples:jfreechart:gwtDev`
 * It accesses [PEGELONLINE API](https://pegelonline.wsv.de/webservice/guideRestapi) to show water gauge measurements
 
